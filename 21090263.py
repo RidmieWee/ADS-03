@@ -9,6 +9,9 @@ Created on Sun May  6 13:31:37 2023
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import sklearn.cluster as cluster
+import sklearn.metrics as skmet
+import cluster_tools as ct
 
 # create function for read file
 def read_climate_data(filename):
