@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import sklearn.cluster as cluster
+from sklearn import cluster as sk_cluster
 import sklearn.metrics as skmet
 import scipy.optimize as opt
 
@@ -89,6 +90,55 @@ def calculate_silhoutte_score(df):
         print(ncluster, skmet.silhouette_score(df, labels))
 
     return
+
+
+def plot_normalized_cg(df, n, country_names):
+
+    # number of cluster centres
+    nc = n
+
+    # define k means
+    kmeans = sk_cluster.KMeans(n_clusters=nc)
+    kmeans.fit(df)
+
+    # extract labels and cluster centres
+    labels = kmeans.labels_
+    cen = kmeans.cluster_centers_
+
+    # Create a dictionary to store the country names for each cluster
+    cluster_country_map = {}
+
+    # assign the country name to the corresponding cluster
+    for i, label in enumerate(labels):
+        if label not in cluster_country_map:
+            cluster_country_map[label] = []
+        cluster_country_map[label].append(country_names[i])
+
+    # print the country names for each cluster
+    for cluster, countries in cluster_country_map.items():
+        print(f"Cluster {cluster}:")
+        print(countries)
+
+    # plot the figure
+    plt.figure(figsize=(6.0, 6.0))
+
+    # scatter plot with colours selected using the cluster numbers
+    plt.scatter(df["CO2"], df["GDP"], c=labels, cmap="tab10")
+
+    # show cluster centres
+    xc = cen[:, 0]
+    yc = cen[:, 1]
+
+    # plot the scatter plot
+    plt.scatter(xc, yc, c="k", marker="d", s=80)
+
+    # add title, labels, and legends
+    plt.xlabel("CO2")
+    plt.ylabel("GDP")
+    plt.title("3 clusters")
+
+    # show the plot
+    plt.show()
 
 
 # read co2 file
@@ -189,7 +239,11 @@ print("Score for GDP/EC:")
 calculate_silhoutte_score(df_gdp_en_2019)
 
 
+# get country names
+country_names_cg = df_2019_cg["Country Name"].tolist()
 
+# call function to plot normalized cluster
+plot_normalized_cg(df_co2_gdp_2019, 2, country_names_cg)
 
 
 
