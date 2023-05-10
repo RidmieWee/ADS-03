@@ -360,6 +360,15 @@ def exponential_growth(t, scale, growth):
     return f
 
 
+def logistic(t, n0, g, t0):
+    """Calculates the logistic function with scale factor n0 and growth
+    rate g"""
+
+    f = n0 / (1 + np.exp(-g*(t - t0)))
+
+    return f
+
+
 def exponential_gdp(df):
 
     # fit the function with curve fit
@@ -420,6 +429,101 @@ def exponential_gdp(df):
     print("2030:", exponential_growth(2030, *popt) / 1.0e6, "Mill.")
     print("2040:", exponential_growth(2040, *popt) / 1.0e6, "Mill.")
     print("2050:", exponential_growth(2050, *popt) / 1.0e6, "Mill.")
+
+
+def logistic_gdp(df):
+
+    # extract the year and total GDP columns as numpy arrays
+    x = df['Year'].values.astype(int)
+    y = df['Total'].values
+
+    # define the initial guess for the parameters (L, k, x0)
+    p0 = [max(y), 1, np.median(x)]
+
+    # fit the logistic model to the data
+    params, covar = opt.curve_fit(logistic, x, y, p0)
+
+    # find a feasible start value the pedestrian way
+    # add new column for pred
+    df["pop_exp"] = logistic(df["Year"], *params)
+
+    # plot the figure
+    plt.figure(1)
+
+    # plot data and fitted line
+    plt.plot(df["Year"], df["Total"], label="data")
+    plt.plot(df["Year"], df["pop_exp"], label="fit")
+
+    # add legend and title
+    plt.legend()
+    plt.title("improved start value")
+
+    # show the plot
+    plt.show()
+
+    # add column for log function
+    df["pop_logistics"] = logistic(df["Year"], *params)
+
+    # start the plotting
+    plt.figure(2)
+
+    # plot data and fitted log function
+    plt.plot(df["Year"], df["Total"], label="data")
+    plt.plot(df["Year"], df["pop_logistics"], label="fit")
+
+    # add legend and title
+    plt.legend()
+    plt.title("logistics function")
+
+    # plot the figure
+    plt.show()
+
+    print("Population in")
+    print("2030:", logistic(2030, *params) / 1.0e6, "Mill.")
+    print("2040:", logistic(2040, *params) / 1.0e6, "Mill.")
+    print("2050:", logistic(2050, *params) / 1.0e6, "Mill.")
+
+    print("Fit parameter", params)
+    # extract variances and calculate sigmas
+    sigmas = np.sqrt(np.diag(covar))
+
+    # create extended year range
+    years = np.arange(1960, 2041)
+
+    # call function to calculate upper and lower limits with extrapolation
+    lower, upper = err.err_ranges(years, logistic, params, sigmas)
+
+    # start plotting
+    plt.figure(3)
+
+    # plot the data and fitted line with errors
+    plt.plot(df["Year"], df["Total"], label="data")
+    plt.plot(df["Year"], df["pop_logistics"], label="fit")
+
+    # plot error ranges with transparency
+    plt.fill_between(years, lower, upper, alpha=0.5)
+
+    # add titl and legends
+    plt.title("logistics function")
+    plt.legend(loc="upper left")
+
+    # plot the figure
+    plt.show()
+
+    print(logistic(2030, *params))
+    print(err.err_ranges(2030, logistic, params, sigmas))
+
+    # assuming symmetrie estimate sigma
+    gdp2030 = logistic(2030, *params)
+
+    # calculate pred for 2030 with lower and upper range
+    low, up = err.err_ranges(2030, logistic, params, sigmas)
+    sig = np.abs(up-low)/(2.0)
+    print()
+
+    print("GDP 2030", gdp2030, "+/-", sig)
+
+    return
 
 
 # read co2 file
@@ -554,7 +658,8 @@ print(df_gdp_aus.info())
 # call exp function to fit data with exp function
 exponential_gdp(df_gdp_aus)
 
-
+# call logistic function to fit data with logistic function
+logistic_gdp(df_gdp_aus)
 
 
 
