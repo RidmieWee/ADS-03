@@ -338,6 +338,90 @@ def plot_original_scale_ge(dfn, dfo, df_min, df_max, n):
     plt.show()
 
 
+def melt_to_one_year(df):
+
+    # transform years columns to one year column
+    df_new = pd.melt(df,
+                     id_vars=["Country Name",
+                              "Country Code",
+                              "Indicator Name"
+                              ],
+                     value_vars=df.iloc[:, 3:-1].columns,
+                     var_name="Year",
+                     value_name=("Total"))
+
+    return df_new
+
+
+def exponential_growth(t, scale, growth):
+
+    f = scale * np.exp(growth * (t-1990))
+
+    return f
+
+
+def exponential_gdp(df):
+
+    # fit the function with curve fit
+    popt, pcorr = opt.curve_fit(exponential_growth, df["Year"], df["Total"])
+
+    print("Fit parameter", popt)
+
+    # create a new column in df
+    df["pop_exp"] = exponential_growth(df["Year"], *popt)
+
+    # plot figure
+    plt.figure(1)
+
+    # plot data and the prediction
+    plt.plot(df["Year"], df["Total"], label="data")
+    plt.plot(df["Year"], df["pop_exp"], label="fit")
+
+    # plot the legend and title
+    plt.legend()
+    plt.title("first fit attempt")
+
+    # show the plot
+    plt.show()
+
+    # calculate the percentage change in GDP for each year
+    pct_changes = df["Total"].pct_change()
+
+    # calculate the average annual growth rate
+    avg_growth_rate = np.mean(pct_changes[1:])
+
+    # fit exponential growth
+    popt, pcorr = opt.curve_fit(exponential_growth,
+                                df["Year"],
+                                df["Total"],
+                                p0=[df["Total"].iloc[-1], avg_growth_rate])
+
+    print("Fit parameter", popt)
+
+    # create a new column in df
+    df["pop_exp"] = exponential_growth(df["Year"], *popt)
+
+    # plot another figure
+    plt.figure(2)
+
+    # plot data and the prediction
+    plt.plot(df["Year"], df["Total"], label="data")
+    plt.plot(df["Year"], df["pop_exp"], label="fit")
+
+    # add legend and title
+    plt.legend()
+    plt.title("Final fit exponential growth")
+
+    # show the plot
+    plt.show()
+
+    print()
+    print("GDP in")
+    print("2030:", exponential_growth(2030, *popt) / 1.0e6, "Mill.")
+    print("2040:", exponential_growth(2040, *popt) / 1.0e6, "Mill.")
+    print("2050:", exponential_growth(2050, *popt) / 1.0e6, "Mill.")
+
+
 # read co2 file
 df_co2_year, df_co2_country = read_data_dile("CO2.csv")
 
@@ -451,9 +535,24 @@ plot_original_scale_cg(df_co2_gdp_2019, df_2019_cg, df_min1, df_max1, 2)
 plot_original_scale_cr(df_co2_rec_2019, df_2019_cr, df_min2, df_max2, 2)
 plot_original_scale_ge(df_gdp_en_2019, df_2013_ge, df_min3, df_max3, 3)
 
+# transform the df_year dataframe seperate years columns into one year column
+df_gdp_year_pivot = melt_to_one_year(df_gdp_year)
 
+# extract data for Australia
+df_gdp_aus = df_gdp_year_pivot[df_gdp_year_pivot["Country Name"] ==
+                               "Australia"]
 
+# drop NaNs
+df_gdp_aus = df_gdp_aus.dropna(axis=0)
 
+# convert year into int data type
+df_gdp_aus['Year'] = df_gdp_aus['Year'].astype(int)
+
+# explore the new dataframe
+print(df_gdp_aus.info())
+
+# call exp function to fit data with exp function
+exponential_gdp(df_gdp_aus)
 
 
 
