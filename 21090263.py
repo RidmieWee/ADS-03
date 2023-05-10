@@ -68,6 +68,29 @@ def merge_data(df1, df2, year):
     return df_merged
 
 
+def calculate_silhoutte_score(df):
+
+    print("n    score")
+    # loop over number of clusters
+    for ncluster in range(2, 10):
+
+        # set up the clusterer with the number of expected clusters
+        kmeans = cluster.KMeans(n_clusters=ncluster)
+
+        # Fit the data, results are stored in the kmeans object
+        kmeans.fit(df)     # fit done on x,y pairs
+
+        labels = kmeans.labels_
+
+        # extract the estimated cluster centres
+        cen = kmeans.cluster_centers_
+
+        # calculate the silhoutte score
+        print(ncluster, skmet.silhouette_score(df, labels))
+
+    return
+
+
 # read co2 file
 df_co2_year, df_co2_country = read_data_dile("CO2.csv")
 
@@ -91,3 +114,91 @@ print(df_rec_year.describe())
 
 # explore the energy consump. dataframe
 print(df_energy_year.describe())
+
+# get the merged data for co2 and gdp for 2019
+df_2019_cg = merge_data(df_co2_year, df_gdp_year, "2013")
+
+# explore merged dataframe
+print(df_2019_cg.describe())
+
+# rename columns
+df_2019_cg = df_2019_cg.rename(columns={"2013_x": "CO2", "2013_y": "GDP"})
+
+# plot the scatter matrix
+pd.plotting.scatter_matrix(df_2019_cg, figsize=(12, 12), s=20, alpha=0.8)
+
+# calculate the correlation
+print(df_2019_cg.corr())
+
+# copy dataframe to another
+df_co2_gdp_2019 = df_2019_cg[["CO2", "GDP"]].copy()
+
+# normalise the dataframe
+df_co2_gdp_2019, df_min1, df_max1 = ct.scaler(df_co2_gdp_2019)
+
+# get the merged data for co2 and renewable energy for 2019
+df_2019_cr = merge_data(df_co2_year, df_rec_year, "2013")
+
+# explore merged dataframe
+print(df_2019_cr.describe())
+
+# rename columns
+df_2019_cr = df_2019_cr.rename(columns={"2013_x": "CO2",
+                                        "2013_y": "Renewable energy"})
+
+# plot the scatter matrix
+pd.plotting.scatter_matrix(df_2019_cr, figsize=(12, 12), s=20, alpha=0.8)
+
+# calculate the correlation
+print(df_2019_cr.corr())
+
+# copy dataframe to another
+df_co2_rec_2019 = df_2019_cr[["CO2", "Renewable energy"]].copy()
+
+# normalise the dataframe
+df_co2_rec_2019, df_min2, df_max2 = ct.scaler(df_co2_rec_2019)
+
+# get the merged data for co2 and renewable energy for 2019
+df_2013_ge = merge_data(df_gdp_year, df_energy_year, "2013")
+
+# explore the merged dataframe
+df_2013_ge.describe()
+
+# rename columns
+df_2013_ge = df_2013_ge.rename(columns={"2013_x": "GDP",
+                                        "2013_y": "Energy use"})
+
+# plot the scatter matrix
+pd.plotting.scatter_matrix(df_2013_ge, figsize=(12, 12), s=20, alpha=0.8)
+
+# calculate the correlation
+print(df_2013_ge.corr())
+
+# copy dataframe to another
+df_gdp_en_2019 = df_2013_ge[["GDP", "Energy use"]].copy()
+
+# normalise the dataframe
+df_gdp_en_2019, df_min3, df_max3 = ct.scaler(df_gdp_en_2019)
+
+# calculate silhoutte score
+print("Score for CO2/GDP:")
+calculate_silhoutte_score(df_co2_gdp_2019)
+print("Score for CO2/REC:")
+calculate_silhoutte_score(df_co2_rec_2019)
+print("Score for GDP/EC:")
+calculate_silhoutte_score(df_gdp_en_2019)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
