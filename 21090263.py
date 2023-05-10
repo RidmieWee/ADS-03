@@ -115,8 +115,8 @@ def plot_normalized_cg(df, n, country_names):
         cluster_country_map[label].append(country_names[i])
 
     # print the country names for each cluster
-    for cluster, countries in cluster_country_map.items():
-        print(f"Cluster {cluster}:")
+    for cluster1, countries in cluster_country_map.items():
+        print(f"Cluster {cluster1}:")
         print(countries)
 
     # plot the figure
@@ -135,9 +135,206 @@ def plot_normalized_cg(df, n, country_names):
     # add title, labels, and legends
     plt.xlabel("CO2")
     plt.ylabel("GDP")
+    plt.title("2 clusters")
+
+    # show the plot
+    plt.show()
+
+
+def plot_original_scale_cg(dfn, dfo, df_min, df_max, n):
+
+    # number of cluster centres
+    nc = n
+
+    # fit normalized data to kmeans algorithm
+    kmeans = cluster.KMeans(n_clusters=nc)
+    kmeans.fit(dfn)
+
+    # extract labels and cluster centres
+    labels = kmeans.labels_
+    cen = kmeans.cluster_centers_
+
+    # plot the figure
+    plt.figure(figsize=(6.0, 6.0))
+
+    # plot the scatter plot
+    plt.scatter(dfo["CO2"], dfo["GDP"], c=labels, cmap="tab10")
+
+    # rescale and show cluster centres
+    scen = ct.backscale(cen, df_min, df_max)
+    xc = scen[:, 0]
+    yc = scen[:, 1]
+
+    # plot scatter plot
+    plt.scatter(xc, yc, c="k", marker="d", s=80)
+
+    plt.xlabel("CO2 (MT per capita)")
+    plt.ylabel("GDP per capita (current US$)")
+    plt.title("2 clusters")
+    plt.show()
+
+
+def plot_normalized_cr(df, n, country_names):
+
+    # number of cluster centres
+    nc = n
+
+    # define k means
+    kmeans = sk_cluster.KMeans(n_clusters=nc)
+    kmeans.fit(df)
+
+    # extract labels and cluster centres
+    labels = kmeans.labels_
+    cen = kmeans.cluster_centers_
+
+    # Create a dictionary to store the country names for each cluster
+    cluster_country_map = {}
+
+    # assign the country name to the corresponding cluster
+    for i, label in enumerate(labels):
+        if label not in cluster_country_map:
+            cluster_country_map[label] = []
+        cluster_country_map[label].append(country_names[i])
+
+    # print the country names for each cluster
+    for cluster1, countries in cluster_country_map.items():
+        print(f"Cluster {cluster1}:")
+        print(countries)
+
+    # plot the figure
+    plt.figure(figsize=(6.0, 6.0))
+
+    # scatter plot with colours selected using the cluster numbers
+    plt.scatter(df["CO2"], df["Renewable energy"], c=labels, cmap="tab10")
+
+    # show cluster centres
+    xc = cen[:, 0]
+    yc = cen[:, 1]
+
+    # plot the scatter plot
+    plt.scatter(xc, yc, c="k", marker="d", s=80)
+
+    # add title, labels, and legends
+    plt.xlabel("CO2")
+    plt.ylabel("Renewable energy consumption")
+    plt.title("2 clusters")
+
+    # show the plot
+    plt.show()
+
+
+def plot_original_scale_cr(dfn, dfo, df_min, df_max, n):
+
+    # number of cluster centres
+    nc = n
+
+    # fit normalized data to kmeans algorithm
+    kmeans = cluster.KMeans(n_clusters=nc)
+    kmeans.fit(dfn)
+
+    # extract labels and cluster centres
+    labels = kmeans.labels_
+    cen = kmeans.cluster_centers_
+
+    # plot the figure
+    plt.figure(figsize=(6.0, 6.0))
+
+    # plot the scatter plot
+    plt.scatter(dfo["CO2"], dfo["Renewable energy"], c=labels, cmap="tab10")
+
+    # rescale and show cluster centres
+    scen = ct.backscale(cen, df_min, df_max)
+    xc = scen[:, 0]
+    yc = scen[:, 1]
+
+    # plot scatter plot
+    plt.scatter(xc, yc, c="k", marker="d", s=80)
+
+    plt.xlabel("CO2 (MT per capita)")
+    plt.ylabel("Renewable energy Consumption(% total energy)")
+    plt.title("3 clusters")
+    plt.show()
+
+
+def plot_normalized_ge(df, n, country_names):
+
+    # number of cluster centres
+    nc = n
+
+    # define k means
+    kmeans = sk_cluster.KMeans(n_clusters=nc)
+    kmeans.fit(df)
+
+    # extract labels and cluster centres
+    labels = kmeans.labels_
+    cen = kmeans.cluster_centers_
+
+    # Create a dictionary to store the country names for each cluster
+    cluster_country_map = {}
+
+    # assign the country name to the corresponding cluster
+    for i, label in enumerate(labels):
+        if label not in cluster_country_map:
+            cluster_country_map[label] = []
+        cluster_country_map[label].append(country_names[i])
+
+    # print the country names for each cluster
+    for cluster1, countries in cluster_country_map.items():
+        print(f"Cluster {cluster1}:")
+        print(countries)
+
+    # plot the figure
+    plt.figure(figsize=(6.0, 6.0))
+
+    # scatter plot with colours selected using the cluster numbers
+    plt.scatter(df["GDP"], df["Energy use"], c=labels, cmap="tab10")
+
+    # show cluster centres
+    xc = cen[:, 0]
+    yc = cen[:, 1]
+
+    # plot the scatter plot
+    plt.scatter(xc, yc, c="k", marker="d", s=80)
+
+    # add title, labels, and legends
+    plt.xlabel("GDP")
+    plt.ylabel("Energy Consumption")
     plt.title("3 clusters")
 
     # show the plot
+    plt.show()
+
+
+def plot_original_scale_ge(dfn, dfo, df_min, df_max, n):
+
+    # number of cluster centres
+    nc = n
+
+    # fit normalized data to kmeans algorithm
+    kmeans = cluster.KMeans(n_clusters=nc)
+    kmeans.fit(dfn)
+
+    # extract labels and cluster centres
+    labels = kmeans.labels_
+    cen = kmeans.cluster_centers_
+
+    # plot the figure
+    plt.figure(figsize=(6.0, 6.0))
+
+    # plot the scatter plot
+    plt.scatter(dfo["GDP"], dfo["Energy use"], c=labels, cmap="tab10")
+
+    # rescale and show cluster centres
+    scen = ct.backscale(cen, df_min, df_max)
+    xc = scen[:, 0]
+    yc = scen[:, 1]
+
+    # plot scatter plot
+    plt.scatter(xc, yc, c="k", marker="d", s=80)
+
+    plt.xlabel("GDP per capita (current US$)")
+    plt.ylabel("Energy Use")
+    plt.title("3 clusters")
     plt.show()
 
 
@@ -241,9 +438,18 @@ calculate_silhoutte_score(df_gdp_en_2019)
 
 # get country names
 country_names_cg = df_2019_cg["Country Name"].tolist()
+country_names_cr = df_2019_cr["Country Name"].tolist()
+country_names_ge = df_2013_ge["Country Name"].tolist()
 
 # call function to plot normalized cluster
 plot_normalized_cg(df_co2_gdp_2019, 2, country_names_cg)
+plot_normalized_cr(df_co2_rec_2019, 2, country_names_cr)
+plot_normalized_ge(df_gdp_en_2019, 3, country_names_ge)
+
+# call function to plot original scale cluster
+plot_original_scale_cg(df_co2_gdp_2019, df_2019_cg, df_min1, df_max1, 2)
+plot_original_scale_cr(df_co2_rec_2019, df_2019_cr, df_min2, df_max2, 2)
+plot_original_scale_ge(df_gdp_en_2019, df_2013_ge, df_min3, df_max3, 3)
 
 
 
