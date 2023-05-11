@@ -5,6 +5,11 @@ Created on Sun May  6 13:31:37 2023
 @author: Ridmi Weerakotuwa
 """
 
+
+# =============================================================================
+# Imports
+# =============================================================================
+
 # import libraries
 import pandas as pd
 import numpy as np
@@ -17,8 +22,13 @@ import scipy.optimize as opt
 import cluster_tools as ct
 import errors as err
 
+# =============================================================================
+# Function definitions
+# =============================================================================
 
 def read_data_dile(filename):
+
+    """ This functions get file nme as parametr and return dataframes """
 
     # read data from csv
     df_data = pd.read_csv(filename, skiprows=4)
@@ -48,6 +58,8 @@ def read_data_dile(filename):
 
 
 def merge_data(df1, df2, year):
+    """ This function get 2dataframes and according to the given year
+    merged into one dataframe """
 
     # drop rows with NaN's in 1st df
     df_1 = df1[df1[year].notna()]
@@ -70,6 +82,7 @@ def merge_data(df1, df2, year):
 
 
 def calculate_silhoutte_score(df):
+    """ Calculates the silhoutte forgiven df"""
 
     print("n    score")
     # loop over number of clusters
@@ -94,6 +107,7 @@ def calculate_silhoutte_score(df):
 
 # Calculate cluster density
 def calculate_cluster_density(labels):
+    """ calculate cluster density"""
 
     unique_labels, counts = np.unique(labels, return_counts=True)
     cluster_density = counts / np.sum(counts)
@@ -102,6 +116,7 @@ def calculate_cluster_density(labels):
 
 # Calculate cluster mean
 def calculate_cluster_mean(labels, data):
+    """ calculate cluster mean"""
 
     unique_labels = np.unique(labels)
     cluster_means = []
@@ -114,6 +129,7 @@ def calculate_cluster_mean(labels, data):
 
 # Calculate cluster median
 def calculate_cluster_median(labels, data):
+    """ calculate cluster median"""
 
     unique_labels = np.unique(labels)
     cluster_medians = []
@@ -126,6 +142,7 @@ def calculate_cluster_median(labels, data):
 
 # Calculate cluster standard deviation
 def calculate_cluster_std(labels, data):
+    """ calculate cluster std """
 
     unique_labels = np.unique(labels)
     cluster_stds = []
@@ -137,8 +154,9 @@ def calculate_cluster_std(labels, data):
 
 
 # Calculate cluster metrics
-
 def calculate_cluster_metrics(labels, data):
+    """ calculate cluster metrics """
+
     cluster_density = calculate_cluster_density(labels)
     cluster_mean = calculate_cluster_mean(labels, data)
     cluster_median = calculate_cluster_median(labels, data)
@@ -147,6 +165,8 @@ def calculate_cluster_metrics(labels, data):
 
 
 def plot_normalized_cg(df, n, country_names):
+    """This function det dataframe, number of clusters and
+    country names and return normalized cluster"""
 
     # number of cluster centres
     nc = n
@@ -196,6 +216,7 @@ def plot_normalized_cg(df, n, country_names):
 
 
 def plot_original_scale_cg(dfn, dfo, df_min, df_max, n):
+    """This function returns original scale cluster"""
 
     # number of cluster centres
     nc = n
@@ -302,6 +323,7 @@ def plot_original_scale_cg(dfn, dfo, df_min, df_max, n):
 
 
 def plot_original_scale_cg_1990(dfn, dfo, df_min, df_max, n):
+    """This function returns original scale cluster for 1990"""
 
     # number of cluster centres
     nc = n
@@ -374,6 +396,7 @@ def plot_original_scale_cg_1990(dfn, dfo, df_min, df_max, n):
 
 
 def plot_normalized_cr(df, n, country_names):
+    """This function returns normalized scale cluster"""
 
     # number of cluster centres
     nc = n
@@ -423,6 +446,8 @@ def plot_normalized_cr(df, n, country_names):
 
 
 def plot_original_scale_cr(dfn, dfo, df_min, df_max, n):
+    """This function returns original scale cluster for co2 and renew.
+    energy"""
 
     # number of cluster centres
     nc = n
@@ -520,6 +545,8 @@ def plot_original_scale_cr(dfn, dfo, df_min, df_max, n):
 
 
 def plot_original_scale_cr_90(dfn, dfo, df_min, df_max, n):
+    """This function returns original scale cluster for co2 and renew.
+    energy fo 1990"""
 
     # number of cluster centres
     nc = n
@@ -592,6 +619,7 @@ def plot_original_scale_cr_90(dfn, dfo, df_min, df_max, n):
 
 
 def plot_normalized_ge(df, n, country_names):
+    """This function returns normalized scale cluster"""
 
     # number of cluster centres
     nc = n
@@ -641,6 +669,7 @@ def plot_normalized_ge(df, n, country_names):
 
 
 def plot_original_scale_ge(dfn, dfo, df_min, df_max, n):
+    """This function returns original scale cluster """
 
     # number of cluster centres
     nc = n
@@ -735,6 +764,7 @@ def plot_original_scale_ge(dfn, dfo, df_min, df_max, n):
 
 
 def plot_original_scale_ge_90(dfn, dfo, df_min, df_max, n):
+    """This function returns original scale cluster for 1990"""
 
     # number of cluster centres
     nc = n
@@ -815,6 +845,7 @@ def plot_original_scale_ge_90(dfn, dfo, df_min, df_max, n):
 
 
 def melt_to_one_year(df):
+    """this function transform multiple year columns into one year column"""
 
     # transform years columns to one year column
     df_new = pd.melt(df,
@@ -830,6 +861,7 @@ def melt_to_one_year(df):
 
 
 def exponential_growth(t, scale, growth):
+    """ Calculate exp growth """
 
     f = scale * np.exp(growth * (t-1990))
 
@@ -846,28 +878,7 @@ def logistic(t, n0, g, t0):
 
 
 def exponential_gdp(df):
-
-    # fit the function with curve fit
-    popt, pcorr = opt.curve_fit(exponential_growth, df["Year"], df["Total"])
-
-    print("Fit parameter", popt)
-
-    # create a new column in df
-    df["pop_exp"] = exponential_growth(df["Year"], *popt)
-
-    # plot figure
-    plt.figure(1)
-
-    # plot data and the prediction
-    plt.plot(df["Year"], df["Total"], label="data")
-    plt.plot(df["Year"], df["pop_exp"], label="fit")
-
-    # plot the legend and title
-    plt.legend()
-    plt.title("first fit attempt")
-
-    # show the plot
-    plt.show()
+    """ return best fit using exponen. growth"""
 
     # calculate the percentage change in GDP for each year
     pct_changes = df["Total"].pct_change()
@@ -887,7 +898,7 @@ def exponential_gdp(df):
     df["pop_exp"] = exponential_growth(df["Year"], *popt)
 
     # plot another figure
-    plt.figure(2)
+    plt.figure(figsize=(6.0, 6.0))
 
     # plot data and the prediction
     plt.plot(df["Year"], df["Total"], label="data")
@@ -895,7 +906,12 @@ def exponential_gdp(df):
 
     # add legend and title
     plt.legend()
-    plt.title("Final fit exponential growth")
+    plt.xlabel("Year", color="black",
+               fontweight='bold')
+    plt.ylabel("GDP per capita (current US$)", color="black",
+               fontweight='bold')
+    plt.title("Final fit exponential growth for GDP China", color="black",
+              fontweight='bold', y=1.01)
 
     # show the plot
     plt.show()
@@ -908,6 +924,7 @@ def exponential_gdp(df):
 
 
 def logistic_gdp(df):
+    """return best fit using logistic function"""
 
     # extract the year and total GDP columns as numpy arrays
     x = df['Year'].values.astype(int)
@@ -919,42 +936,10 @@ def logistic_gdp(df):
     # fit the logistic model to the data
     params, covar = opt.curve_fit(logistic, x, y, p0)
 
-    # find a feasible start value the pedestrian way
-    # add new column for pred
-    df["pop_exp"] = logistic(df["Year"], *params)
-
-    # plot the figure
-    plt.figure(1)
-
-    # plot data and fitted line
-    plt.plot(df["Year"], df["Total"], label="data")
-    plt.plot(df["Year"], df["pop_exp"], label="fit")
-
-    # add legend and title
-    plt.legend()
-    plt.title("improved start value")
-
-    # show the plot
-    plt.show()
-
-    # add column for log function
+    # add column for prediction
     df["pop_logistics"] = logistic(df["Year"], *params)
 
-    # start the plotting
-    plt.figure(2)
-
-    # plot data and fitted log function
-    plt.plot(df["Year"], df["Total"], label="data")
-    plt.plot(df["Year"], df["pop_logistics"], label="fit")
-
-    # add legend and title
-    plt.legend()
-    plt.title("logistics function")
-
-    # plot the figure
-    plt.show()
-
-    print("Population in")
+    print("GDP in")
     print("2030:", logistic(2030, *params) / 1.0e6, "Mill.")
     print("2040:", logistic(2040, *params) / 1.0e6, "Mill.")
     print("2050:", logistic(2050, *params) / 1.0e6, "Mill.")
@@ -970,21 +955,23 @@ def logistic_gdp(df):
     lower, upper = err.err_ranges(years, logistic, params, sigmas)
 
     # start plotting
-    plt.figure(3)
+    plt.figure(figsize=(6.0, 6.0))
 
     # plot the data and fitted line with errors
-    plt.plot(df["Year"], df["Total"], label="data")
-    plt.plot(df["Year"], df["pop_logistics"], label="fit")
+    plt.plot(df["Year"], df["Total"], label="Actual data")
+    plt.plot(df["Year"], df["pop_logistics"], label="Logisic fit")
 
     # plot error ranges with transparency
-    plt.fill_between(years, lower, upper, alpha=0.5)
+    plt.fill_between(years, lower, upper, alpha=0.5, color='#B5EAD7')
 
-    # add titl and legends
-    plt.title("logistics function")
+    # add legend and title
     plt.legend(loc="upper left")
-
-    # plot the figure
-    plt.show()
+    plt.xlabel("Year", color="black",
+               fontweight='bold')
+    plt.ylabel("GDP per capita (current US$)", color="black",
+               fontweight='bold')
+    plt.title("GDP Prediction of Australia", color="black",
+              fontweight='bold', y=1.01)
 
     print(logistic(2030, *params))
     print(err.err_ranges(2030, logistic, params, sigmas))
@@ -999,7 +986,154 @@ def logistic_gdp(df):
 
     print("GDP 2030", gdp2030, "+/-", sig)
 
+
+    plt.text(1990, gdp2030, f"GDP 2030: {gdp2030:.2f} +/- {sig:.2f}")
+
+    # plot the figure
+    plt.show()
+
     return
+
+
+def logistic_co2(df):
+    """return best fit using logistic function"""
+
+    # extract the year and total GDP columns as numpy arrays
+    x = df['Year'].values.astype(int)
+    y = df['Total'].values
+
+    # define the initial guess for the parameters (L, k, x0)
+    p0 = [max(y), 1, np.median(x)]
+
+    # fit the logistic model to the data
+    params, covar = opt.curve_fit(logistic, x, y, p0)
+
+    # add column for prediction
+    df["pop_logistics"] = logistic(df["Year"], *params)
+
+    print("Fit parameter", params)
+    # extract variances and calculate sigmas
+    sigmas = np.sqrt(np.diag(covar))
+
+    # create extended year range
+    years = np.arange(1990, 2041)
+
+    # call function to calculate upper and lower limits with extrapolation
+    lower, upper = err.err_ranges(years, logistic, params, sigmas)
+
+    # start plotting
+    plt.figure(figsize=(6.0, 6.0))
+
+    # plot the data and fitted line with errors
+    plt.plot(df["Year"], df["Total"], label="Actual data")
+    plt.plot(df["Year"], df["pop_logistics"], label="Logisic fit")
+
+    # plot error ranges with transparency
+    plt.fill_between(years, lower, upper, alpha=0.5, color='#EECEFD')
+
+    # add legend and title
+    plt.legend(loc="upper left")
+    plt.xlabel("Year", color="black",
+               fontweight='bold')
+    plt.ylabel("CO2 per capita (MT)", color="black",
+               fontweight='bold')
+    plt.title("CO2 emission Prediction of Sweden (MT)",
+              color="black",
+              fontweight='bold', y=1.01)
+
+    print(logistic(2030, *params))
+    print(err.err_ranges(2030, logistic, params, sigmas))
+
+    # assuming symmetrie estimate sigma
+    co22030 = logistic(2030, *params)
+
+    # calculate pred for 2030 with lower and upper range
+    low, up = err.err_ranges(2030, logistic, params, sigmas)
+    sig = np.abs(up-low)/(2.0)
+    print()
+
+    print("CO2 2030", co22030, "+/-", sig)
+
+
+    plt.text(1990, co22030, f"CO2 2030: {co22030:.2f} +/- {sig:.2f}")
+
+    # plot the figure
+    plt.show()
+
+    return
+
+
+
+def logistic_en(df):
+    """return best fit using logistic function"""
+
+    # extract the year and total GDP columns as numpy arrays
+    x = df['Year'].values.astype(int)
+    y = df['Total'].values
+
+    # define the initial guess for the parameters (L, k, x0)
+    p0 = [max(y), 1, np.median(x)]
+
+    # fit the logistic model to the data
+    params, covar = opt.curve_fit(logistic, x, y, p0)
+
+    # add column for prediction
+    df["pop_logistics"] = logistic(df["Year"], *params)
+
+    print("Fit parameter", params)
+    # extract variances and calculate sigmas
+    sigmas = np.sqrt(np.diag(covar))
+
+    # create extended year range
+    years = np.arange(1970, 2041)
+
+    # call function to calculate upper and lower limits with extrapolation
+    lower, upper = err.err_ranges(years, logistic, params, sigmas)
+
+    # start plotting
+    plt.figure(figsize=(6.0, 6.0))
+
+    # plot the data and fitted line with errors
+    plt.plot(df["Year"], df["Total"], label="Actual data")
+    plt.plot(df["Year"], df["pop_logistics"], label="Logisic fit")
+
+    # plot error ranges with transparency
+    plt.fill_between(years, lower, upper, alpha=0.5, color='#BBF2BB')
+
+    # add legend and title
+    plt.legend(loc="lower right")
+    plt.xlabel("Year", color="black",
+               fontweight='bold')
+    plt.ylabel("Energy Consumption (kg of oil)", color="black",
+               fontweight='bold')
+    plt.title("Energy Consumption of Bahrain (kg of oil)",
+              color="black",
+              fontweight='bold', y=1.01)
+
+    print(logistic(2030, *params))
+    print(err.err_ranges(2030, logistic, params, sigmas))
+
+    # assuming symmetrie estimate sigma
+    en2030 = logistic(2030, *params)
+
+    # calculate pred for 2030 with lower and upper range
+    low, up = err.err_ranges(2030, logistic, params, sigmas)
+    sig = np.abs(up-low)/(2.0)
+    print()
+
+    print("Energy Consumption 2030", en2030, "+/-", sig)
+
+    plt.text(1970, en2030-0.5, f"2030: {en2030:.2f} +/- {sig:.2f}")
+
+    # plot the figure
+    plt.show()
+
+    return
+
+
+# =============================================================================
+# Main program
+# =============================================================================
 
 
 # read co2 file
@@ -1167,22 +1301,39 @@ plot_original_scale_ge_90(df_gdp_en_1990, df_1990_ge, df_min6, df_max6, 2)
 
 # transform the df_year dataframe seperate years columns into one year column
 df_gdp_year_pivot = melt_to_one_year(df_gdp_year)
+df_co2_year_pivot = melt_to_one_year(df_co2_year)
+df_rec_year_pivot = melt_to_one_year(df_rec_year)
+df_en_year_pivot = melt_to_one_year(df_energy_year)
 
-# extract data for Australia
-df_gdp_aus = df_gdp_year_pivot[df_gdp_year_pivot["Country Name"] ==
+# extract data for china
+df_gdp_china = df_gdp_year_pivot[df_gdp_year_pivot["Country Name"] ==
                                "Australia"]
 
+df_co2_china = df_co2_year_pivot[df_co2_year_pivot["Country Name"] ==
+                               "Sweden"]
+
+df_en_china = df_en_year_pivot[df_en_year_pivot["Country Name"] ==
+                               "Bahrain"]
+
 # drop NaNs
-df_gdp_aus = df_gdp_aus.dropna(axis=0)
+df_gdp_china = df_gdp_china.dropna(axis=0)
+df_co2_china = df_co2_china.dropna(axis=0)
+df_en_china = df_en_china.dropna(axis=0)
 
 # convert year into int data type
-df_gdp_aus['Year'] = df_gdp_aus['Year'].astype(int)
+df_gdp_china['Year'] = df_gdp_china['Year'].astype(int)
+df_co2_china['Year'] = df_co2_china['Year'].astype(int)
+df_en_china['Year'] = df_en_china['Year'].astype(int)
 
 # explore the new dataframe
-print(df_gdp_aus.info())
+print(df_gdp_china.info())
 
 # call exp function to fit data with exp function
-exponential_gdp(df_gdp_aus)
+exponential_gdp(df_gdp_china)
 
 # call logistic function to fit data with logistic function
-logistic_gdp(df_gdp_aus)
+logistic_gdp(df_gdp_china)
+logistic_co2(df_co2_china)
+logistic_en(df_en_china)
+
+
