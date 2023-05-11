@@ -92,6 +92,60 @@ def calculate_silhoutte_score(df):
     return
 
 
+# Calculate cluster density
+def calculate_cluster_density(labels):
+
+    unique_labels, counts = np.unique(labels, return_counts=True)
+    cluster_density = counts / np.sum(counts)
+    return cluster_density
+
+
+# Calculate cluster mean
+def calculate_cluster_mean(labels, data):
+
+    unique_labels = np.unique(labels)
+    cluster_means = []
+    for label in unique_labels:
+        cluster_data = data[labels == label]
+        cluster_mean = np.mean(cluster_data, axis=0)
+        cluster_means.append(cluster_mean)
+    return np.array(cluster_means)
+
+
+# Calculate cluster median
+def calculate_cluster_median(labels, data):
+
+    unique_labels = np.unique(labels)
+    cluster_medians = []
+    for label in unique_labels:
+        cluster_data = data[labels == label]
+        cluster_median = np.median(cluster_data, axis=0)
+        cluster_medians.append(cluster_median)
+    return np.array(cluster_medians)
+
+
+# Calculate cluster standard deviation
+def calculate_cluster_std(labels, data):
+
+    unique_labels = np.unique(labels)
+    cluster_stds = []
+    for label in unique_labels:
+        cluster_data = data[labels == label]
+        cluster_std = np.std(cluster_data, axis=0)
+        cluster_stds.append(cluster_std)
+    return np.array(cluster_stds)
+
+
+# Calculate cluster metrics
+
+def calculate_cluster_metrics(labels, data):
+    cluster_density = calculate_cluster_density(labels)
+    cluster_mean = calculate_cluster_mean(labels, data)
+    cluster_median = calculate_cluster_median(labels, data)
+    cluster_std = calculate_cluster_std(labels, data)
+    return cluster_density, cluster_mean, cluster_median, cluster_std
+
+
 def plot_normalized_cg(df, n, country_names):
 
     # number of cluster centres
@@ -154,11 +208,61 @@ def plot_original_scale_cg(dfn, dfo, df_min, df_max, n):
     labels = kmeans.labels_
     cen = kmeans.cluster_centers_
 
+    # Calculate cluster statistics
+    for i in range(nc):
+        cluster_data = dfo.loc[labels == i, ["CO2", "GDP"]]
+        cluster_density = len(cluster_data)
+        cluster_mean = cluster_data.mean()
+        cluster_median = cluster_data.median()
+        cluster_std = cluster_data.std()
+
+        print(f"2019 Cluster {i+1}:")
+        print("Density:", cluster_density)
+        print("Mean:", cluster_mean)
+        print("Median:", cluster_median)
+        print("Standard Deviation:", cluster_std)
+        print()
+
     # plot the figure
     plt.figure(figsize=(6.0, 6.0))
 
+    # Create separate dataframes for countries
+    df_canada = dfo[dfo["Country Name"] == "Canada"]
+    df_china = dfo[dfo["Country Name"] == "China"]
+    df_australia = dfo[dfo["Country Name"] == "Australia"]
+    df_brazil = dfo[dfo["Country Name"] == "Brazil"]
+    df_germany = dfo[dfo["Country Name"] == "Germany"]
+    df_japan = dfo[dfo["Country Name"] == "Japan"]
+
     # plot the scatter plot
-    scatter = plt.scatter(dfo["CO2"], dfo["GDP"], c=labels, cmap="tab10")
+    scatter = plt.scatter(dfo["CO2"],
+                          dfo["GDP"],
+                          c=labels,
+                          cmap="Set3")
+    plt.scatter(df_canada["CO2"],
+                df_canada["GDP"],
+                color='#FFD142',
+                label='Canada')
+    plt.scatter(df_china["CO2"],
+                df_china["GDP"],
+                color='#0FEDCF',
+                label='China')
+    plt.scatter(df_australia["CO2"],
+                df_australia["GDP"],
+                color='#FFD142',
+                label='Australia')
+    plt.scatter(df_brazil["CO2"],
+                df_brazil["GDP"],
+                color='#0FEDCF',
+                label='Brazil')
+    plt.scatter(df_germany["CO2"],
+                df_germany["GDP"],
+                color='#FFD142',
+                label='Germany')
+    plt.scatter(df_japan["CO2"],
+                df_japan["GDP"],
+                color='#FFD142',
+                label='Japan')
 
     # rescale and show cluster centres
     scen = ct.backscale(cen, df_min, df_max)
@@ -168,16 +272,32 @@ def plot_original_scale_cg(dfn, dfo, df_min, df_max, n):
     # plot scatter plot
     plt.scatter(xc, yc, c="k", marker="d", s=80)
 
+    # Add country names near the data points
+    offset = 0.1  # offset the text placement for better visibility
+    for x, y, country in zip(dfo["CO2"],
+                             dfo["GDP"],
+                             dfo["Country Name"]):
+        if country in ["Canada", "China", "Australia",
+                       "Brazil", "Germany", "Japan"]:
+            plt.text(x + offset, y + offset,
+                     country, fontsize=11, color="black")
+
     # Create a legend
     legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
     plt.legend(handles=scatter.legend_elements()[0],
-               labels=legend_labels,
-               loc="upper right")
+               labels=legend_labels, loc="upper right")
+
+    # Rotate y-axis label
+    plt.yticks(rotation=45)
 
     # add legend and title
-    plt.xlabel("CO2 (MT per capita)")
-    plt.ylabel("GDP per capita (current US$)")
-    plt.title("CO2 Emissions vs. GDP - 2019")
+    plt.xlabel("CO2 (MT per capita)", color="black", fontweight='bold')
+    plt.ylabel("GDP per capita (current US$)",
+               color="black",
+               fontweight='bold')
+    plt.title("CO2 Emissions vs. GDP - 2019",
+              color="black",
+              fontweight='bold', y=1.02)
     plt.show()
 
 
@@ -197,8 +317,28 @@ def plot_original_scale_cg_1990(dfn, dfo, df_min, df_max, n):
     # plot the figure
     plt.figure(figsize=(6.0, 6.0))
 
+    # Create separate dataframes for countries
+    df_canada = dfo[dfo["Country Name"] == "Canada"]
+    df_china = dfo[dfo["Country Name"] == "China"]
+    df_australia = dfo[dfo["Country Name"] == "Australia"]
+    df_brazil = dfo[dfo["Country Name"] == "Brazil"]
+    df_germany = dfo[dfo["Country Name"] == "Germany"]
+    df_japan = dfo[dfo["Country Name"] == "Japan"]
+
     # plot the scatter plot
-    scatter = plt.scatter(dfo["CO2"], dfo["GDP"], c=labels, cmap="tab10")
+    scatter = plt.scatter(dfo["CO2"], dfo["GDP"], c=labels, cmap="Set3")
+    plt.scatter(df_canada["CO2"], df_canada["GDP"], color='#F4FF07',
+                label='Canada')
+    plt.scatter(df_china["CO2"], df_china["GDP"], color='#020551',
+                label='China')
+    plt.scatter(df_australia["CO2"], df_australia["GDP"], color='#F4FF07',
+                label='Australia')
+    plt.scatter(df_brazil["CO2"], df_brazil["GDP"], color='#020551',
+                label='Brazil')
+    plt.scatter(df_germany["CO2"], df_germany["GDP"], color='#F4FF07',
+                label='Germany')
+    plt.scatter(df_japan["CO2"], df_japan["GDP"], color='#F4FF07',
+                label='Japan')
 
     # rescale and show cluster centres
     scen = ct.backscale(cen, df_min, df_max)
@@ -208,16 +348,28 @@ def plot_original_scale_cg_1990(dfn, dfo, df_min, df_max, n):
     # plot scatter plot
     plt.scatter(xc, yc, c="k", marker="d", s=80)
 
+    # Add country names near the data points
+    offset = 0.1  # offset the text placement for better visibility
+    for x, y, country in zip(dfo["CO2"], dfo["GDP"], dfo["Country Name"]):
+        if country in ["Canada", "China", "Australia", "Brazil",
+                       "Germany", "Japan"]:
+            plt.text(x + offset, y + offset, country,
+                     fontsize=11, color="black")
+
     # Create a legend
     legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
     plt.legend(handles=scatter.legend_elements()[0],
-               labels=legend_labels,
-               loc="upper right")
+               labels=legend_labels, loc="upper right")
+
+    # Rotate y-axis label
+    plt.yticks(rotation=45)
 
     # add legend and title
-    plt.xlabel("CO2 (MT per capita)")
-    plt.ylabel("GDP per capita (current US$)")
-    plt.title("CO2 Emissions vs. GDP - 1990")
+    plt.xlabel("CO2 (MT per capita)", color="black", fontweight='bold')
+    plt.ylabel("GDP per capita (current US$)", color="black",
+               fontweight='bold')
+    plt.title("CO2 Emissions vs. GDP - 1990", color="black",
+              fontweight='bold', y=1.02)
     plt.show()
 
 
@@ -283,14 +435,56 @@ def plot_original_scale_cr(dfn, dfo, df_min, df_max, n):
     labels = kmeans.labels_
     cen = kmeans.cluster_centers_
 
+    # Calculate cluster statistics
+    for i in range(nc):
+        cluster_data = dfo.loc[labels == i, ["CO2", "Renewable energy"]]
+        cluster_density = len(cluster_data)
+        cluster_mean = cluster_data.mean()
+        cluster_median = cluster_data.median()
+        cluster_std = cluster_data.std()
+
+        print(f"CR 2019 Cluster {i+1}:")
+        print("Density:", cluster_density)
+        print("Mean:", cluster_mean)
+        print("Median:", cluster_median)
+        print("Standard Deviation:", cluster_std)
+        print()
+
     # plot the figure
     plt.figure(figsize=(6.0, 6.0))
+
+    # Create separate dataframes for countries
+    df_canada = dfo[dfo["Country Name"] == "Canada"]
+    df_china = dfo[dfo["Country Name"] == "China"]
+    df_sl = dfo[dfo["Country Name"] == "Sri Lanka"]
+    df_fin = dfo[dfo["Country Name"] == "Finland"]
+    df_al = dfo[dfo["Country Name"] == "Albania"]
 
     # plot the scatter plot
     scatter = plt.scatter(dfo["CO2"],
                           dfo["Renewable energy"],
                           c=labels,
-                          cmap="tab10")
+                          cmap="Set3")
+    plt.scatter(df_canada["CO2"],
+                df_canada["Renewable energy"],
+                color='#FFD142',
+                label='Canada')
+    plt.scatter(df_china["CO2"],
+                df_china["Renewable energy"],
+                color='#FFD142',
+                label='China')
+    plt.scatter(df_sl["CO2"],
+                df_sl["Renewable energy"],
+                color='#0FEDCF',
+                label='Sri Lanka')
+    plt.scatter(df_fin["CO2"],
+                df_fin["Renewable energy"],
+                color='#0FEDCF',
+                label='Finland')
+    plt.scatter(df_al["CO2"],
+                df_al["Renewable energy"],
+                color='#0FEDCF',
+                label='Albania')
 
     # rescale and show cluster centres
     scen = ct.backscale(cen, df_min, df_max)
@@ -300,6 +494,14 @@ def plot_original_scale_cr(dfn, dfo, df_min, df_max, n):
     # plot scatter plot
     plt.scatter(xc, yc, c="k", marker="d", s=80)
 
+    # Add country names near the data points
+    offset = 0.1  # offset the text placement for better visibility
+    for x, y, country in zip(dfo["CO2"], dfo["Renewable energy"],
+                             dfo["Country Name"]):
+        if country in ["Canada", "China", "Sri Lanka", "Finland", "Albania"]:
+            plt.text(x + offset, y + offset, country,
+                     fontsize=11, color="black")
+
     # Create a legend
     legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
     plt.legend(handles=scatter.legend_elements()[0],
@@ -307,9 +509,11 @@ def plot_original_scale_cr(dfn, dfo, df_min, df_max, n):
                loc="upper right")
 
     # add labels and titles
-    plt.xlabel("CO2 (MT per capita)")
-    plt.ylabel("Renewable energy Consumption (% total energy)")
-    plt.title("CO2 vs Renew. Energy Consumption - 2019")
+    plt.xlabel("CO2 (MT per capita)", color="black", fontweight='bold')
+    plt.ylabel("Renewable energy Consumption (% total energy)",
+               color="black", fontweight='bold')
+    plt.title("CO2 vs Renew. Energy Consumption - 2019",
+              color="black", fontweight='bold', y=1.02)
 
     # show the plot
     plt.show()
@@ -331,11 +535,28 @@ def plot_original_scale_cr_90(dfn, dfo, df_min, df_max, n):
     # plot the figure
     plt.figure(figsize=(6.0, 6.0))
 
+    # Create separate dataframes for countries
+    df_canada = dfo[dfo["Country Name"] == "Canada"]
+    df_china = dfo[dfo["Country Name"] == "China"]
+    df_sl = dfo[dfo["Country Name"] == "Sri Lanka"]
+    df_fin = dfo[dfo["Country Name"] == "Finland"]
+    df_al = dfo[dfo["Country Name"] == "Albania"]
+
     # plot the scatter plot
     scatter = plt.scatter(dfo["CO2"],
                           dfo["Renewable energy"],
                           c=labels,
-                          cmap="tab10")
+                          cmap="Set3")
+    plt.scatter(df_canada["CO2"], df_canada["Renewable energy"],
+                color='#020551', label='Canada')
+    plt.scatter(df_china["CO2"], df_china["Renewable energy"],
+                color='#020551', label='China')
+    plt.scatter(df_sl["CO2"], df_sl["Renewable energy"],
+                color='#F4FF07', label='Sri Lanka')
+    plt.scatter(df_fin["CO2"], df_fin["Renewable energy"],
+                color='#020551', label='Finland')
+    plt.scatter(df_al["CO2"], df_al["Renewable energy"],
+                color='#020551', label='Albania')
 
     # rescale and show cluster centres
     scen = ct.backscale(cen, df_min, df_max)
@@ -345,6 +566,14 @@ def plot_original_scale_cr_90(dfn, dfo, df_min, df_max, n):
     # plot scatter plot
     plt.scatter(xc, yc, c="k", marker="d", s=80)
 
+    # Add country names near the data points
+    offset = 0.1  # offset the text placement for better visibility
+    for x, y, country in zip(dfo["CO2"], dfo["Renewable energy"],
+                             dfo["Country Name"]):
+        if country in ["Canada", "China", "Sri Lanka", "Finland", "Albania"]:
+            plt.text(x + offset, y + offset, country,
+                     fontsize=11, color="black")
+
     # Create a legend
     legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
     plt.legend(handles=scatter.legend_elements()[0],
@@ -352,9 +581,11 @@ def plot_original_scale_cr_90(dfn, dfo, df_min, df_max, n):
                loc="upper right")
 
     # add labels and titles
-    plt.xlabel("CO2 (MT per capita)")
-    plt.ylabel("Renewable energy Consumption (% total energy)")
-    plt.title("CO2 vs Renew. Energy Consumption - 1990")
+    plt.xlabel("CO2 (MT per capita)", color="black", fontweight='bold')
+    plt.ylabel("Renewable energy Consumption (% total energy)",
+               color="black", fontweight='bold')
+    plt.title("CO2 vs Renew. Energy Consumption - 1990",
+              color="black", fontweight='bold', y=1.02)
 
     # show the plot
     plt.show()
@@ -391,7 +622,7 @@ def plot_normalized_ge(df, n, country_names):
     plt.figure(figsize=(6.0, 6.0))
 
     # scatter plot with colours selected using the cluster numbers
-    plt.scatter(df["GDP"], df["Energy use"], c=labels, cmap="tab10")
+    plt.scatter(df["GDP"], df["Energy use"], c=labels, cmap="Set3")
 
     # show cluster centres
     xc = cen[:, 0]
@@ -422,14 +653,48 @@ def plot_original_scale_ge(dfn, dfo, df_min, df_max, n):
     labels = kmeans.labels_
     cen = kmeans.cluster_centers_
 
+    # Calculate cluster statistics
+    for i in range(nc):
+        cluster_data = dfo.loc[labels == i, ["GDP", "Energy use"]]
+        cluster_density = len(cluster_data)
+        cluster_mean = cluster_data.mean()
+        cluster_median = cluster_data.median()
+        cluster_std = cluster_data.std()
+        print(f"Cluster {i+1}:")
+        print("Density:", cluster_density)
+        print("Mean:", cluster_mean)
+        print("Median:", cluster_median)
+        print("Standard Deviation:", cluster_std)
+        print()
+
     # plot the figure
     plt.figure(figsize=(6.0, 6.0))
+
+    # Create separate dataframes for countries
+    df_canada = dfo[dfo["Country Name"] == "Canada"]
+    df_china = dfo[dfo["Country Name"] == "China"]
+    df_australia = dfo[dfo["Country Name"] == "Australia"]
+    df_india = dfo[dfo["Country Name"] == "India"]
+    df_qatar = dfo[dfo["Country Name"] == "Qatar"]
+    df_kuwait = dfo[dfo["Country Name"] == "Bahrain"]
 
     # plot the scatter plot
     scatter = plt.scatter(dfo["GDP"],
                           dfo["Energy use"],
                           c=labels,
-                          cmap="tab10")
+                          cmap="Set3")
+    plt.scatter(df_canada["GDP"], df_canada["Energy use"],
+                color='#0E5300', label='Canada')
+    plt.scatter(df_china["GDP"], df_china["Energy use"],
+                color='#020551', label='China')
+    plt.scatter(df_australia["GDP"], df_australia["Energy use"],
+                color='#0E5300', label='Australia')
+    plt.scatter(df_india["GDP"], df_india["Energy use"],
+                color='#020551', label='India')
+    plt.scatter(df_qatar["GDP"], df_qatar["Energy use"],
+                color='#F4FF07', label='Qatar')
+    plt.scatter(df_kuwait["GDP"], df_kuwait["Energy use"],
+                color='#F4FF07', label='Bahrain')
 
     # rescale and show cluster centres
     scen = ct.backscale(cen, df_min, df_max)
@@ -439,16 +704,31 @@ def plot_original_scale_ge(dfn, dfo, df_min, df_max, n):
     # plot scatter plot
     plt.scatter(xc, yc, c="k", marker="d", s=80)
 
+    # Add country names near the data points
+    offset = 0.1  # offset the text placement for better visibility
+    for x, y, country in zip(dfo["GDP"], dfo["Energy use"],
+                             dfo["Country Name"]):
+        if country in ["Canada", "China", "Australia", "India",
+                       "Qatar", "Bahrain"]:
+            plt.text(x + offset, y + offset, country, fontsize=11,
+                     color="black")
+
     # Create a legend
     legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
     plt.legend(handles=scatter.legend_elements()[0],
                labels=legend_labels,
-               loc="upper right")
+               loc="upper left")
+
+    # Rotate y-axis label
+    plt.yticks(rotation=45)
 
     # add title and labels
-    plt.xlabel("GDP per capita (current US$)")
-    plt.ylabel("Energy Use")
-    plt.title("GDP vs Energy Consumption - 2013")
+    plt.xlabel("GDP per capita (current US$)", color="black",
+               fontweight='bold')
+    plt.ylabel("Energy Use per capita (kg of oil)", color="black",
+               fontweight='bold')
+    plt.title("GDP vs Energy Consumption - 2013", color="black",
+              fontweight='bold', y=1.02)
 
     # show the plot
     plt.show()
@@ -470,11 +750,31 @@ def plot_original_scale_ge_90(dfn, dfo, df_min, df_max, n):
     # plot the figure
     plt.figure(figsize=(6.0, 6.0))
 
+    # Create separate dataframes for countries
+    df_canada = dfo[dfo["Country Name"] == "Canada"]
+    df_china = dfo[dfo["Country Name"] == "China"]
+    df_australia = dfo[dfo["Country Name"] == "Australia"]
+    df_india = dfo[dfo["Country Name"] == "India"]
+    df_qatar = dfo[dfo["Country Name"] == "Qatar"]
+    df_kuwait = dfo[dfo["Country Name"] == "Bahrain"]
+
     # plot the scatter plot
     scatter = plt.scatter(dfo["GDP"],
                           dfo["Energy use"],
                           c=labels,
-                          cmap="tab10")
+                          cmap="Set3")
+    plt.scatter(df_canada["GDP"], df_canada["Energy use"],
+                color='#F4FF07', label='Canada')
+    plt.scatter(df_china["GDP"], df_china["Energy use"],
+                color='#020551', label='China')
+    plt.scatter(df_australia["GDP"], df_australia["Energy use"],
+                color='#F4FF07', label='Australia')
+    plt.scatter(df_india["GDP"], df_india["Energy use"],
+                color='#020551', label='India')
+    plt.scatter(df_qatar["GDP"], df_qatar["Energy use"],
+                color='#F4FF07', label='Qatar')
+    plt.scatter(df_kuwait["GDP"], df_kuwait["Energy use"],
+                color='#F4FF07', label='Bahrain')
 
     # rescale and show cluster centres
     scen = ct.backscale(cen, df_min, df_max)
@@ -484,16 +784,31 @@ def plot_original_scale_ge_90(dfn, dfo, df_min, df_max, n):
     # plot scatter plot
     plt.scatter(xc, yc, c="k", marker="d", s=80)
 
+    # Add country names near the data points
+    offset = 0.1  # offset the text placement for better visibility
+    for x, y, country in zip(dfo["GDP"], dfo["Energy use"],
+                             dfo["Country Name"]):
+        if country in ["Canada", "China", "Australia", "India",
+                       "Qatar", "Bahrain"]:
+            plt.text(x + offset, y + offset, country, fontsize=11,
+                     color="black")
+
     # Create a legend
     legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
     plt.legend(handles=scatter.legend_elements()[0],
                labels=legend_labels,
                loc="upper right")
 
+    # Rotate y-axis label
+    plt.yticks(rotation=45)
+
     # add title and labels
-    plt.xlabel("GDP per capita (current US$)")
-    plt.ylabel("Energy Use")
-    plt.title("GDP vs Energy Consumption - 1990")
+    plt.xlabel("GDP per capita (current US$)", color="black",
+               fontweight='bold')
+    plt.ylabel("Energy Use per capita (kg of oil)", color="black",
+               fontweight='bold')
+    plt.title("GDP vs Energy Consumption - 1990", color="black",
+              fontweight='bold', y=1.02)
 
     # show the plot
     plt.show()
@@ -740,7 +1055,7 @@ df_co2_gdp_1990, df_min4, df_max4 = ct.scaler(df_co2_gdp_1990)
 
 # get the merged data for co2 and renewable energy for 2019
 df_2019_cr = merge_data(df_co2_year, df_rec_year, "2019")
-df_1990_cr = merge_data(df_co2_year, df_rec_year,"1990")
+df_1990_cr = merge_data(df_co2_year, df_rec_year, "1990")
 
 # explore merged dataframe
 print(df_2019_cr.describe())
@@ -750,7 +1065,8 @@ print(df_1990_cr.describe())
 # rename columns
 df_2019_cr = df_2019_cr.rename(columns={"2019_x": "CO2",
                                         "2019_y": "Renewable energy"})
-df_1990_cr = df_1990_cr.rename(columns={"1990_x": "CO2", "1990_y": "Renewable energy"})
+df_1990_cr = df_1990_cr.rename(columns={"1990_x": "CO2",
+                                        "1990_y": "Renewable energy"})
 
 # plot the scatter matrix
 pd.plotting.scatter_matrix(df_2019_cr, figsize=(12, 12), s=20, alpha=0.8)
@@ -779,7 +1095,8 @@ print(df_1990_ge.describe())
 # rename columns
 df_2013_ge = df_2013_ge.rename(columns={"2013_x": "GDP",
                                         "2013_y": "Energy use"})
-df_1990_ge = df_1990_ge.rename(columns={"1990_x": "GDP", "1990_y": "Energy use"})
+df_1990_ge = df_1990_ge.rename(columns={"1990_x": "GDP",
+                                        "1990_y": "Energy use"})
 
 # plot the scatter matrix
 pd.plotting.scatter_matrix(df_2013_ge, figsize=(12, 12), s=20, alpha=0.8)
@@ -821,12 +1138,24 @@ country_names_cr_90 = df_1990_cr["Country Name"].tolist()
 country_names_ge_90 = df_1990_ge["Country Name"].tolist()
 
 # call function to plot normalized cluster
-plot_normalized_cg(df_co2_gdp_2019, 2, country_names_cg)
+print("")
+print("Clusters for CO2/GDP 2019:")
+plot_normalized_cg(df_co2_gdp_2019, 3, country_names_cg)
+print("")
+print("Clusters for CO2/REC 2019:")
 plot_normalized_cr(df_co2_rec_2019, 2, country_names_cr)
+print("")
+print("Clusters for GDP/EC 2013:")
 plot_normalized_ge(df_gdp_en_2019, 3, country_names_ge)
+print("")
+print("Clusters for CO2/GDP 1990:")
 plot_normalized_cg(df_co2_gdp_1990, 2, country_names_cg_90)
+print("")
+print("Clusters for CO2/REC 1990:")
 plot_normalized_cr(df_co2_rec_1990, 2, country_names_cr_90)
-plot_normalized_ge(df_gdp_en_1990, 3, country_names_ge_90)
+print("")
+print("Clusters for GDP/EC 1990:")
+plot_normalized_ge(df_gdp_en_1990, 2, country_names_ge_90)
 
 # call function to plot original scale cluster
 plot_original_scale_cg(df_co2_gdp_2019, df_2019_cg, df_min1, df_max1, 2)
