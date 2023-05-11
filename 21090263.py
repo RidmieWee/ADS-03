@@ -135,7 +135,7 @@ def plot_normalized_cg(df, n, country_names):
     # add title, labels, and legends
     plt.xlabel("CO2")
     plt.ylabel("GDP")
-    plt.title("2 clusters")
+    plt.title("CO2 Emissions vs. GDP")
 
     # show the plot
     plt.show()
@@ -158,7 +158,7 @@ def plot_original_scale_cg(dfn, dfo, df_min, df_max, n):
     plt.figure(figsize=(6.0, 6.0))
 
     # plot the scatter plot
-    plt.scatter(dfo["CO2"], dfo["GDP"], c=labels, cmap="tab10")
+    scatter = plt.scatter(dfo["CO2"], dfo["GDP"], c=labels, cmap="tab10")
 
     # rescale and show cluster centres
     scen = ct.backscale(cen, df_min, df_max)
@@ -168,9 +168,56 @@ def plot_original_scale_cg(dfn, dfo, df_min, df_max, n):
     # plot scatter plot
     plt.scatter(xc, yc, c="k", marker="d", s=80)
 
+    # Create a legend
+    legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
+    plt.legend(handles=scatter.legend_elements()[0],
+               labels=legend_labels,
+               loc="upper right")
+
+    # add legend and title
     plt.xlabel("CO2 (MT per capita)")
     plt.ylabel("GDP per capita (current US$)")
-    plt.title("2 clusters")
+    plt.title("CO2 Emissions vs. GDP - 2019")
+    plt.show()
+
+
+def plot_original_scale_cg_1990(dfn, dfo, df_min, df_max, n):
+
+    # number of cluster centres
+    nc = n
+
+    # fit normalized data to kmeans algorithm
+    kmeans = cluster.KMeans(n_clusters=nc)
+    kmeans.fit(dfn)
+
+    # extract labels and cluster centres
+    labels = kmeans.labels_
+    cen = kmeans.cluster_centers_
+
+    # plot the figure
+    plt.figure(figsize=(6.0, 6.0))
+
+    # plot the scatter plot
+    scatter = plt.scatter(dfo["CO2"], dfo["GDP"], c=labels, cmap="tab10")
+
+    # rescale and show cluster centres
+    scen = ct.backscale(cen, df_min, df_max)
+    xc = scen[:, 0]
+    yc = scen[:, 1]
+
+    # plot scatter plot
+    plt.scatter(xc, yc, c="k", marker="d", s=80)
+
+    # Create a legend
+    legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
+    plt.legend(handles=scatter.legend_elements()[0],
+               labels=legend_labels,
+               loc="upper right")
+
+    # add legend and title
+    plt.xlabel("CO2 (MT per capita)")
+    plt.ylabel("GDP per capita (current US$)")
+    plt.title("CO2 Emissions vs. GDP - 1990")
     plt.show()
 
 
@@ -217,7 +264,7 @@ def plot_normalized_cr(df, n, country_names):
     # add title, labels, and legends
     plt.xlabel("CO2")
     plt.ylabel("Renewable energy consumption")
-    plt.title("2 clusters")
+    plt.title("CO2 vs Renew. Energy Consumption")
 
     # show the plot
     plt.show()
@@ -240,7 +287,10 @@ def plot_original_scale_cr(dfn, dfo, df_min, df_max, n):
     plt.figure(figsize=(6.0, 6.0))
 
     # plot the scatter plot
-    plt.scatter(dfo["CO2"], dfo["Renewable energy"], c=labels, cmap="tab10")
+    scatter = plt.scatter(dfo["CO2"],
+                          dfo["Renewable energy"],
+                          c=labels,
+                          cmap="tab10")
 
     # rescale and show cluster centres
     scen = ct.backscale(cen, df_min, df_max)
@@ -250,9 +300,63 @@ def plot_original_scale_cr(dfn, dfo, df_min, df_max, n):
     # plot scatter plot
     plt.scatter(xc, yc, c="k", marker="d", s=80)
 
+    # Create a legend
+    legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
+    plt.legend(handles=scatter.legend_elements()[0],
+               labels=legend_labels,
+               loc="upper right")
+
+    # add labels and titles
     plt.xlabel("CO2 (MT per capita)")
-    plt.ylabel("Renewable energy Consumption(% total energy)")
-    plt.title("3 clusters")
+    plt.ylabel("Renewable energy Consumption (% total energy)")
+    plt.title("CO2 vs Renew. Energy Consumption - 2019")
+
+    # show the plot
+    plt.show()
+
+
+def plot_original_scale_cr_90(dfn, dfo, df_min, df_max, n):
+
+    # number of cluster centres
+    nc = n
+
+    # fit normalized data to kmeans algorithm
+    kmeans = cluster.KMeans(n_clusters=nc)
+    kmeans.fit(dfn)
+
+    # extract labels and cluster centres
+    labels = kmeans.labels_
+    cen = kmeans.cluster_centers_
+
+    # plot the figure
+    plt.figure(figsize=(6.0, 6.0))
+
+    # plot the scatter plot
+    scatter = plt.scatter(dfo["CO2"],
+                          dfo["Renewable energy"],
+                          c=labels,
+                          cmap="tab10")
+
+    # rescale and show cluster centres
+    scen = ct.backscale(cen, df_min, df_max)
+    xc = scen[:, 0]
+    yc = scen[:, 1]
+
+    # plot scatter plot
+    plt.scatter(xc, yc, c="k", marker="d", s=80)
+
+    # Create a legend
+    legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
+    plt.legend(handles=scatter.legend_elements()[0],
+               labels=legend_labels,
+               loc="upper right")
+
+    # add labels and titles
+    plt.xlabel("CO2 (MT per capita)")
+    plt.ylabel("Renewable energy Consumption (% total energy)")
+    plt.title("CO2 vs Renew. Energy Consumption - 1990")
+
+    # show the plot
     plt.show()
 
 
@@ -299,7 +403,7 @@ def plot_normalized_ge(df, n, country_names):
     # add title, labels, and legends
     plt.xlabel("GDP")
     plt.ylabel("Energy Consumption")
-    plt.title("3 clusters")
+    plt.title("GDP vs Energy Consumption")
 
     # show the plot
     plt.show()
@@ -322,7 +426,10 @@ def plot_original_scale_ge(dfn, dfo, df_min, df_max, n):
     plt.figure(figsize=(6.0, 6.0))
 
     # plot the scatter plot
-    plt.scatter(dfo["GDP"], dfo["Energy use"], c=labels, cmap="tab10")
+    scatter = plt.scatter(dfo["GDP"],
+                          dfo["Energy use"],
+                          c=labels,
+                          cmap="tab10")
 
     # rescale and show cluster centres
     scen = ct.backscale(cen, df_min, df_max)
@@ -332,9 +439,63 @@ def plot_original_scale_ge(dfn, dfo, df_min, df_max, n):
     # plot scatter plot
     plt.scatter(xc, yc, c="k", marker="d", s=80)
 
+    # Create a legend
+    legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
+    plt.legend(handles=scatter.legend_elements()[0],
+               labels=legend_labels,
+               loc="upper right")
+
+    # add title and labels
     plt.xlabel("GDP per capita (current US$)")
     plt.ylabel("Energy Use")
-    plt.title("3 clusters")
+    plt.title("GDP vs Energy Consumption - 2013")
+
+    # show the plot
+    plt.show()
+
+
+def plot_original_scale_ge_90(dfn, dfo, df_min, df_max, n):
+
+    # number of cluster centres
+    nc = n
+
+    # fit normalized data to kmeans algorithm
+    kmeans = cluster.KMeans(n_clusters=nc)
+    kmeans.fit(dfn)
+
+    # extract labels and cluster centres
+    labels = kmeans.labels_
+    cen = kmeans.cluster_centers_
+
+    # plot the figure
+    plt.figure(figsize=(6.0, 6.0))
+
+    # plot the scatter plot
+    scatter = plt.scatter(dfo["GDP"],
+                          dfo["Energy use"],
+                          c=labels,
+                          cmap="tab10")
+
+    # rescale and show cluster centres
+    scen = ct.backscale(cen, df_min, df_max)
+    xc = scen[:, 0]
+    yc = scen[:, 1]
+
+    # plot scatter plot
+    plt.scatter(xc, yc, c="k", marker="d", s=80)
+
+    # Create a legend
+    legend_labels = ['Cluster {}'.format(i+1) for i in range(nc)]
+    plt.legend(handles=scatter.legend_elements()[0],
+               labels=legend_labels,
+               loc="upper right")
+
+    # add title and labels
+    plt.xlabel("GDP per capita (current US$)")
+    plt.ylabel("Energy Use")
+    plt.title("GDP vs Energy Consumption - 1990")
+
+    # show the plot
     plt.show()
 
 
@@ -660,9 +821,3 @@ exponential_gdp(df_gdp_aus)
 
 # call logistic function to fit data with logistic function
 logistic_gdp(df_gdp_aus)
-
-
-
-
-
-
