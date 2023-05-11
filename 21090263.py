@@ -22,12 +22,13 @@ import scipy.optimize as opt
 import cluster_tools as ct
 import errors as err
 
+
 # =============================================================================
 # Function definitions
 # =============================================================================
 
-def read_data_dile(filename):
 
+def read_data_dile(filename):
     """ This functions get file nme as parametr and return dataframes """
 
     # read data from csv
@@ -986,7 +987,6 @@ def logistic_gdp(df):
 
     print("GDP 2030", gdp2030, "+/-", sig)
 
-
     plt.text(1990, gdp2030, f"GDP 2030: {gdp2030:.2f} +/- {sig:.2f}")
 
     # plot the figure
@@ -1054,14 +1054,12 @@ def logistic_co2(df):
 
     print("CO2 2030", co22030, "+/-", sig)
 
-
     plt.text(1990, co22030, f"CO2 2030: {co22030:.2f} +/- {sig:.2f}")
 
     # plot the figure
     plt.show()
 
     return
-
 
 
 def logistic_en(df):
@@ -1307,10 +1305,10 @@ df_en_year_pivot = melt_to_one_year(df_energy_year)
 
 # extract data for china
 df_gdp_china = df_gdp_year_pivot[df_gdp_year_pivot["Country Name"] ==
-                               "Australia"]
+                                 "Australia"]
 
 df_co2_china = df_co2_year_pivot[df_co2_year_pivot["Country Name"] ==
-                               "Sweden"]
+                                 "Sweden"]
 
 df_en_china = df_en_year_pivot[df_en_year_pivot["Country Name"] ==
                                "Bahrain"]
@@ -1335,5 +1333,3 @@ exponential_gdp(df_gdp_china)
 logistic_gdp(df_gdp_china)
 logistic_co2(df_co2_china)
 logistic_en(df_en_china)
-
-
