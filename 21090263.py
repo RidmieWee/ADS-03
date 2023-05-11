@@ -711,94 +711,130 @@ print(df_rec_year.describe())
 # explore the energy consump. dataframe
 print(df_energy_year.describe())
 
-# get the merged data for co2 and gdp for 2019
-df_2019_cg = merge_data(df_co2_year, df_gdp_year, "2013")
+# get the merged data for co2 and gdp for 2019, 1990
+df_2019_cg = merge_data(df_co2_year, df_gdp_year, "2019")
+df_1990_cg = merge_data(df_co2_year, df_gdp_year, "1990")
 
 # explore merged dataframe
 print(df_2019_cg.describe())
 
 # rename columns
-df_2019_cg = df_2019_cg.rename(columns={"2013_x": "CO2", "2013_y": "GDP"})
+df_2019_cg = df_2019_cg.rename(columns={"2019_x": "CO2", "2019_y": "GDP"})
+df_1990_cg = df_1990_cg.rename(columns={"1990_x": "CO2", "1990_y": "GDP"})
 
 # plot the scatter matrix
 pd.plotting.scatter_matrix(df_2019_cg, figsize=(12, 12), s=20, alpha=0.8)
+pd.plotting.scatter_matrix(df_1990_cg, figsize=(12, 12), s=20, alpha=0.8)
 
 # calculate the correlation
 print(df_2019_cg.corr())
+print(df_1990_cg.corr())
 
 # copy dataframe to another
 df_co2_gdp_2019 = df_2019_cg[["CO2", "GDP"]].copy()
+df_co2_gdp_1990 = df_1990_cg[["CO2", "GDP"]].copy()
 
 # normalise the dataframe
 df_co2_gdp_2019, df_min1, df_max1 = ct.scaler(df_co2_gdp_2019)
+df_co2_gdp_1990, df_min4, df_max4 = ct.scaler(df_co2_gdp_1990)
 
 # get the merged data for co2 and renewable energy for 2019
-df_2019_cr = merge_data(df_co2_year, df_rec_year, "2013")
+df_2019_cr = merge_data(df_co2_year, df_rec_year, "2019")
+df_1990_cr = merge_data(df_co2_year, df_rec_year,"1990")
 
 # explore merged dataframe
 print(df_2019_cr.describe())
+print(df_1990_cr.describe())
+
 
 # rename columns
-df_2019_cr = df_2019_cr.rename(columns={"2013_x": "CO2",
-                                        "2013_y": "Renewable energy"})
+df_2019_cr = df_2019_cr.rename(columns={"2019_x": "CO2",
+                                        "2019_y": "Renewable energy"})
+df_1990_cr = df_1990_cr.rename(columns={"1990_x": "CO2", "1990_y": "Renewable energy"})
 
 # plot the scatter matrix
 pd.plotting.scatter_matrix(df_2019_cr, figsize=(12, 12), s=20, alpha=0.8)
+pd.plotting.scatter_matrix(df_1990_cr, figsize=(12, 12), s=20, alpha=0.8)
 
 # calculate the correlation
 print(df_2019_cr.corr())
+print(df_1990_cr.corr())
 
 # copy dataframe to another
 df_co2_rec_2019 = df_2019_cr[["CO2", "Renewable energy"]].copy()
+df_co2_rec_1990 = df_1990_cr[["CO2", "Renewable energy"]].copy()
 
 # normalise the dataframe
 df_co2_rec_2019, df_min2, df_max2 = ct.scaler(df_co2_rec_2019)
+df_co2_rec_1990, df_min5, df_max5 = ct.scaler(df_co2_rec_1990)
 
-# get the merged data for co2 and renewable energy for 2019
+# get the merged data for co2 and renewable energy for 2013
 df_2013_ge = merge_data(df_gdp_year, df_energy_year, "2013")
+df_1990_ge = merge_data(df_gdp_year, df_energy_year, "1990")
 
 # explore the merged dataframe
-df_2013_ge.describe()
+print(df_2013_ge.describe())
+print(df_1990_ge.describe())
 
 # rename columns
 df_2013_ge = df_2013_ge.rename(columns={"2013_x": "GDP",
                                         "2013_y": "Energy use"})
+df_1990_ge = df_1990_ge.rename(columns={"1990_x": "GDP", "1990_y": "Energy use"})
 
 # plot the scatter matrix
 pd.plotting.scatter_matrix(df_2013_ge, figsize=(12, 12), s=20, alpha=0.8)
+pd.plotting.scatter_matrix(df_1990_ge, figsize=(12, 12), s=20, alpha=0.8)
 
 # calculate the correlation
 print(df_2013_ge.corr())
+print(df_1990_ge.corr())
 
 # copy dataframe to another
 df_gdp_en_2019 = df_2013_ge[["GDP", "Energy use"]].copy()
+df_gdp_en_1990 = df_1990_ge[["GDP", "Energy use"]].copy()
 
 # normalise the dataframe
 df_gdp_en_2019, df_min3, df_max3 = ct.scaler(df_gdp_en_2019)
+df_gdp_en_1990, df_min6, df_max6 = ct.scaler(df_gdp_en_1990)
 
 # calculate silhoutte score
-print("Score for CO2/GDP:")
+print("Score for CO2/GDP 2019:")
 calculate_silhoutte_score(df_co2_gdp_2019)
-print("Score for CO2/REC:")
+print("Score for CO2/REC 2019:")
 calculate_silhoutte_score(df_co2_rec_2019)
-print("Score for GDP/EC:")
+print("Score for GDP/EC 2013:")
 calculate_silhoutte_score(df_gdp_en_2019)
+print("Score for CO2/GDP 1990:")
+calculate_silhoutte_score(df_co2_gdp_1990)
+print("Score for CO2/REC 1990:")
+calculate_silhoutte_score(df_co2_rec_1990)
+print("Score for GDP/EC 1990:")
+calculate_silhoutte_score(df_gdp_en_1990)
 
 
 # get country names
 country_names_cg = df_2019_cg["Country Name"].tolist()
 country_names_cr = df_2019_cr["Country Name"].tolist()
 country_names_ge = df_2013_ge["Country Name"].tolist()
+country_names_cg_90 = df_1990_cg["Country Name"].tolist()
+country_names_cr_90 = df_1990_cr["Country Name"].tolist()
+country_names_ge_90 = df_1990_ge["Country Name"].tolist()
 
 # call function to plot normalized cluster
 plot_normalized_cg(df_co2_gdp_2019, 2, country_names_cg)
 plot_normalized_cr(df_co2_rec_2019, 2, country_names_cr)
 plot_normalized_ge(df_gdp_en_2019, 3, country_names_ge)
+plot_normalized_cg(df_co2_gdp_1990, 2, country_names_cg_90)
+plot_normalized_cr(df_co2_rec_1990, 2, country_names_cr_90)
+plot_normalized_ge(df_gdp_en_1990, 3, country_names_ge_90)
 
 # call function to plot original scale cluster
 plot_original_scale_cg(df_co2_gdp_2019, df_2019_cg, df_min1, df_max1, 2)
 plot_original_scale_cr(df_co2_rec_2019, df_2019_cr, df_min2, df_max2, 2)
 plot_original_scale_ge(df_gdp_en_2019, df_2013_ge, df_min3, df_max3, 3)
+plot_original_scale_cg_1990(df_co2_gdp_1990, df_1990_cg, df_min4, df_max4, 2)
+plot_original_scale_cr_90(df_co2_rec_1990, df_1990_cr, df_min5, df_max5, 2)
+plot_original_scale_ge_90(df_gdp_en_1990, df_1990_ge, df_min6, df_max6, 2)
 
 # transform the df_year dataframe seperate years columns into one year column
 df_gdp_year_pivot = melt_to_one_year(df_gdp_year)
